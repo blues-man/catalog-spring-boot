@@ -1,5 +1,10 @@
-FROM registry.access.redhat.com/ubi8/openjdk-11
+FROM maven:3.6.3-jdk-11 AS builder
 ENV PROFILE=prod
-ADD target/*.jar app.jar
+WORKDIR /opt/app
+COPY . .
+RUN mvn package
+
+FROM registry.access.redhat.com/ubi8/openjdk-11
+COPY --from=builder /opt/app/target/*.jar /app.jar
+CMD java -jar /app.jar
 EXPOSE 8080
-CMD java -jar app.jar
